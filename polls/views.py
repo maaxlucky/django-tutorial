@@ -1,13 +1,14 @@
+import datetime
+
 from django.db.models import F
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse
+from django.utils import timezone
 from django.views import generic
 
 from .models import Question, Choice
 
-
-# Create your views here.
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -15,12 +16,26 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         # CLARIFY return the last five puslished question.
-        return Question.objects.order_by('-pub_date')[:5]
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
+        # return Question.objects.order_by('-pub_date')[:5]
 
+
+# clarify CBV vs FBV
+
+# def index(request):
+#     latest_question_list = Question.objects.all().order_by('-pub_date')[:5]
+#     context = {
+#         'latest_question_list': latest_question_list
+#     }
+#
+#     return render(request, 'polls/index.html', context)
+#
 
 class DetailView(generic.DetailView):
-    model = Question
     template_name = 'polls/detail.html'
+
+    def get_queryset(self):
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
 
 class ResultsView(generic.DetailView):
